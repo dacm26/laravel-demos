@@ -1,5 +1,12 @@
 <?php
 
+
+Event::listen('illuminate.query',function($query)
+{
+  //var_dump($query);//muestra el query en string
+});
+
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -11,7 +18,7 @@
 |
 */
 
-Route::get('/','TasksController@index');
+Route::get('/',['as'=>'home', 'uses' =>'TasksController@index']);
 Route::get('tasks/{id}','TasksController@show')->where('id','\d+');
 Route::resource('tasks','TasksController');
 
@@ -22,8 +29,8 @@ Route::get('{username}/tasks',function($username ){
 });
 
 Route::get('{username}/tasks/{id}',function($username,$id ){
-    $user = User::whereUsername($username)->first();
-    $task = $user->tasks()->findOrFail($id);
-    return View::make('tasks.show',compact('task'));
+    $user = User::with('tasks')->whereUsername($username)->first();
+    $task = $user->tasks;
+    return View::make('tasks.show',compact('user','task'));
   
 });
